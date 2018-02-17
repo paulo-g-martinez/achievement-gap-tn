@@ -101,7 +101,10 @@ col_names <- c(
   'agi_q'
 )
 names(irs_edu_13) <- col_names
-corr_matrix <- ggcorr(irs_edu_13 ,geom = "circle", digits = 0, hjust=0.75, size=5) +
+corr_matrix <- ggcorr(irs_edu_13
+                      #,geom = "circle", digits = 0 
+                      , hjust=0.75, size= 15
+                      ) +
   labs(title = "Correlation Matrix of Key IRS and Education Indicators")
 plot(corr_matrix)
 
