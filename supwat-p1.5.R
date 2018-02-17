@@ -1,6 +1,5 @@
-library("tidyverse")
 library("plyr")
-library("dplyr")
+library("tidyverse")
 library("magrittr")
 library("gdata")
 library("ggplot2")
