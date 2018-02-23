@@ -3,10 +3,12 @@ library("tidyverse")
 library("magrittr")
 library("gdata")
 library("ggplot2")
+library("scales")
 library("plotly")
 library("maps")
 library("reshape2")
 library("GGally")
+
 
 
 # reading in IRS datasets: irs11, irs12, irs13, irs14, irs15
@@ -60,11 +62,22 @@ corr <- districts %>%
 
 load("data/irs_edu_13.Rda")
 
+#Enhance irs_edu_13 for plotting
+
+irs_edu_13 %<>%  
+  mutate(cty_name = row.names(irs_edu_13)) %>% 
+  mutate(agi_capita = adjusted_gross_income/number_of_returns) %>% 
+  mutate(bracket = case_when(
+    agi_capita < 50000 ~ "under 50K", 
+    agi_capita >= 50000 & agi_capita < 60000 ~ "between 50K and 60K",
+    agi_capita > 60000 ~ "over 60K")
+  )
+
 #Scatter Plot of County AGI vs ACT composite
 act_agi_irs <- ggplot(irs_edu_13, aes(x=adjusted_gross_income, y=ACT_Composite, na.rm = T))+
                   geom_point(color = "green", alpha = 0.5) + 
                   geom_smooth(method = "lm") +
-                  geom_text(aes(label = row.names(irs_edu_13), angle = 0), nudge_y = .2, check_overlap = T
+                  geom_text(aes(label = tools::toTitleCase(cty_name), angle = 0), nudge_y = .2, check_overlap = T
                             ) +
                   geom_line(aes(x = 1*10^8.5), color = "red", alpha = .75) +
                   geom_line(aes(x = 1*10^9.5), color = "red", alpha = .75) +
@@ -72,6 +85,15 @@ act_agi_irs <- ggplot(irs_edu_13, aes(x=adjusted_gross_income, y=ACT_Composite, 
                   scale_x_log10() + 
                   labs(x="County AGI", y="County ACT", 
                        title = "Scatter Plot of County ACT Composite as a Function of County AGI")
+
+# Enhanced Scatter of agi_capita vs act
+enh <- ggplot(irs_edu_13, aes(x = agi_capita, y = ACT_Composite, color = factor(bracket), na.rm = T)) +
+  geom_point() +
+  geom_text(aes(label = tools::toTitleCase(cty_name), angle = 0), nudge_y = .2, check_overlap = T
+  ) +
+  labs(x = "County AGI per Capita", y = "County ACT", title = "County AGI per Capita vs County ACT") +
+  #scale_x_log10() +
+  scale_x_continuous(labels = dollar)
 
 #shortening names for correlation matrix
 irs_edu_13 <- irs_edu_13[,-c(2:12)]
@@ -282,15 +304,35 @@ hs_irs$agi_per_return <- hs_irs$agi /hs_irs$total_returns
 
 hs_irs_no_outliers <- hs_irs[-c(22, 89),]
 
+#Scatter Plot of County ACT scores vs County average AGI-per-return
 act_agi_per_return <- ggplot(hs_irs_no_outliers, aes(y=act_comp, x=agi_per_return)) +
   geom_point(color = "dark green") + 
   geom_smooth(method="lm") + 
   geom_text(aes(label = County.Name), 
-             check_overlap = T, nudge_y = .15, #color = "orange"
+             check_overlap = T, nudge_y = .15 
+            #,color = "orange"
              ) +
   geom_line(aes(x = 40000), color = "red", alpha = .75) +
   geom_line(aes(x = 50000), color = "red", alpha = .75) +
-  labs(y="County ACT", x="County AGI Per Return")
+  labs(y="County ACT", x="County AGI Per Return", title = "Scatter Plot of a County's Average Adjusted Income Per Return V.S. ACT Composite Scores")
+
+#enhancing massih's plot
+enh_aapr <- ggplot(hs_irs_no_outliers, aes(y = act_comp, x = agi_per_return))
+
+# Ggplotly of County ACT scores vs County average AGI-per-return
+act_agi_per_return_ggplotly <- ggplotly(p = ggplot2::last_plot(), 
+                                        tooltip = c("agi_per_return", "act_comp", "County.Name")
+)
+
+#Plotly Scatter of County ACT scores vs County average AGI-per-return
+act_agiperreturn_plotly <- plot_ly(data = hs_irs_no_outliers, 
+                                   x = ~agi_per_return, 
+                                   y = ~act_comp,
+                                   text = ~County.Name, 
+                                   type = "scatter",
+                                   mode = "markers")
+
+
 
 hs <- melt(hs_irs, id.vars=c("County.Name", "agi", "act_comp", "total_returns", "agi_per_return", "per_pupil"))
 
@@ -316,12 +358,6 @@ bot_5_agi_facet <- ggplot(bot_5_agi, aes(y=value, x=variable)) +
   facet_grid(.~county) +
   theme(axis.text.x = element_text(angle=60, hjust=1)) +
   labs(x="Subject", y="Proficiency Rate")
-
-
-
-
-# ACT COMP VS AGI PER RETURN
-
 
 # --------------------------------------------------------------------
 

@@ -20,7 +20,7 @@ library("GGally")
 load("final-graphs-p.Rda")
 load("data/irs_edu_13.Rda")
 ```
-![](presentation/supwat.png)
+![](www/supwat.png)
 
 #How Did **Income** Affect **Education** in Tennessee in the 2014 - 2015 Academic Year?
 ```{r agi_by_county, echo = F, fig.width=20, fig.height=17}
@@ -29,13 +29,13 @@ plot(agi_by_county)
 
   In 2016 **ACT** [reported](http://www.act.org/content/dam/act/unsecured/documents/R1604-ACT-Composite-Score-by-Family-Income.pdf) that students, from families with an annual income of \$80,000 or more tend to score about four (4) points higher than students in families that earn less than \$80,000 a year. 
 
-![ACT by Family Income](presentation/ACT_Composite-Score_by_Family_Income.png)
+![ACT by Family Income](www/ACT_Composite-Score_by_Family_Income.png)
 
 ## It's kindof a big deal
 
 * In 2013 the national average ACT composite score was 20.9. 
 
-* With standardized-test scores like the SAT and **ACT** being a major (if not the primary) criteria for college admission in the US, **a four (4) point difference is a big difference!**
+* With standardized-test scores like the SAT and **ACT** being a major criteria for college admission in the US, **a four (4) point difference is a big difference!**
 
     In 2014 similar results were [reported by the Huffington Post](https://www.huffingtonpost.com/2014/07/18/act-score-family-income_n_5600065.html) and [by the Washington Post](https://www.washingtonpost.com/news/wonk/wp/2014/03/05/these-four-charts-show-how-the-sat-favors-the-rich-educated-families/?utm_term=.56cc245120db) about the ACT and the SAT respectively. And in September 2017, the Washington Post reported that the **Achievement Gap** has, if anything, *worsened* for the ACT: [*‘We didn’t know it was this bad’: New ACT scores show huge achievement gaps*.](https://www.washingtonpost.com/local/education/we-didnt-know-it-was-this-bad-new-act-scores-show-huge-achievement-gaps/2017/09/06/c6397f36-9279-11e7-aace-04b862b2b3f3_story.html?utm_term=.f50e950bb198)
 
