@@ -1,0 +1,9 @@
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# Large files
+data/SABS_1314_SchoolLevels/
