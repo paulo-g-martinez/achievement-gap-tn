@@ -44,20 +44,9 @@ load("data/SABS_TN.Rda")
 # transform projection for compatibiliyt
 SABS_TN <- spTransform(SABS_TN, CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 
-# GRANULARITY MATCHING ---------------------------------
-
 # a leaflet with polygon data from an unplotted map-object
 mapCounties <- map("county", 'tennessee', fill = T, plot = F)
 mapCounties$county <- str_replace(mapCounties$names, "tennessee,", "")
-#lf_Counties <-
-leaflet(mapCounties) %>%
-  addTiles() %>%
-  addPolygons(
-    fillColor = topo.colors(10, alpha = NULL),
-    stroke = F,
-    label = ~as.character(county)) #%>%
-'addPolygons(shape_districts2016, color = "blue", weight = 1, smoothFactor = 0.5, opacity = 1.0,
-highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = T))'
 
 # leaflet with school district polygons from US census bureau
 # https://www.census.gov/geo/maps-data/data/cbf/cbf_sd.html
@@ -65,22 +54,13 @@ shape_districts2016 <- readOGR("cb_2016_47_unsd_500k/cb_2016_47_unsd_500k.shp",
                                verbose = T,
                                GDAL1_integer64_policy = T)
 
-leaflet(shape_districts2016) %>%
-  addTiles() %>%
-  addPolygons(color = "blue", weight = 1, smoothFactor = 0.5, opacity = 1.0,
-              fillOpacity = 0.5,
-              fillColor = ~colorQuantile("YlOrRd", ALAND)(ALAND),
-              highlightOptions =
-                highlightOptions(color = "white", weight = 2, bringToFront = T),
-              labelOptions =
-                labelOptions(clickable = T)
-  )
-
 #There are two problems:
 # 1) leaflet is making holes where there should be districts within districts (I could work around that)
 # 2) the data is unhelpful since most school districts = county
 
-# attempting to combine the two previous leaflets
+# GRANULARITY MATCHING ---------------------------------
+
+# combine shp files, and tiles into one leaflet
 leaflet(mapCounties) %>%
   # Base groups
   addTiles(group = "OSM (default)") %>%
@@ -90,46 +70,41 @@ leaflet(mapCounties) %>%
   addPolygons(weight = 3, color = "navy", opacity = 1,
               fillColor = "red", fillOpacity = 0.5,
               group = "County Outline",
-              label = ~as.character(county)) %>%
+              label = ~as.character(county),
+              highlightOptions = highlightOptions(color = "white", weight = 3,
+                                                  bringToFront = T)) %>%
   addPolygons(data = shape_districts2016,
               weight = 2, color = "white", opacity = 1,
               fillColor = "navy", fillOpacity = 0.5,
               group = "District Outline",
-              label = ~as.character(NAME)) %>%
+              label = ~as.character(NAME),
+              highlightOptions = highlightOptions(color = "red", weight = 2,
+                                                  bringToFront = T)) %>%
   addPolygons(data = SABS_TN,
-              weight = 1, color = "black", opacity = 1,
+              weight = 1, color = "black", opacity = 1, 
               fillColor = "white", fillOpacity = 0.2,
-              group = "attendance zone",
-              label = ~as.character(schnam)) %>%
+              #fill = F,
+              group = "Attendance Zone",
+              label = ~as.character(schnam),
+              highlightOptions = highlightOptions(color = "orange", weight = 4,
+                                                  bringToFront = T, fillColor = "blue", 
+                                                  sendToBack = T, fillOpacity = 0.5,
+                                                  #pathOptions(clickable = T),
+                                                  ), 
+              popup = ~paste(schnam, "openEnroll: ", openEnroll)
+              ) %>%
   # Layers control
   addLayersControl(
     baseGroups = c("OSM (default)", "Positron", "Nat Geo"),
-    overlayGroups = c("County Outline", "District Outline", "attendance zone"),
+    overlayGroups = c("County Outline", "District Outline", "Attendance Zone"),
     options = layersControlOptions(collapsed = FALSE)
-  )
+  ) %>% 
+  hideGroup(c("District Outline", "Attendance Zone")) 
 
-#attempting to plot SABAS
-#leaflet(SABS_TN) %>% addPolygons()
-#plot(SABS_TN)
-#map(SABS_TN)
-
-#attempting with different tools
-'library("maptools")
-area <- readShapePoly("cb_2016_47_unsd_500k/cb_2016_47_unsd_500k.shp")
-library(RColorBrewer)
-colors <- brewer.pal(9, "BuGn")
-library(ggmap)
-mapImage <- get_map(location = c(-90, min(area.points$lat), -80, max(area.points$lat)))
-mapImage <- get_map(location = c(-86, 36))
-mapImage <- get_map(location = c(-92, 30, -82, 40))
-area.points <- fortify(area)
-ggmap(mapImage) +
-geom_polygon(aes(x = long, y = lat, group = group),
-data = area.points,
-color = colors[9],
-fill = colors[6],
-alpha = 0.5)'
-# The problem here is that the map is not interactive. (also, I need to fix the aspect ratio)
+# example of selectable shapes
+leaflet(mapCounties) %>% 
+  addPolygons(layerId = ~county, group = ~county) %>% 
+  addLayersControl(overlayGroups = ~county)
 
 # EXPLORATORY ANALYSIS --------------------------------------
 "ach_profile <- ach_profile %>%  #could move the ach_grouping up into Data Maniplation in Load and Merge
@@ -158,7 +133,7 @@ corr_ach <- ach_profile %>%
   dplyr::select(-c(district, dst_name, CORE_region, County.Name, County.Number, bracket))
 #ggcorrplot::ggcorrplot(corr)
 #ggcorrplot::cor_pmat(corr)
-GGally::ggcorr(corr, label = T)
+GGally::ggcorr(corr_ach, label = T)
 
 corr1 <- ach_profile %>%
   dplyr::filter(bracket == "1st third") %>%
