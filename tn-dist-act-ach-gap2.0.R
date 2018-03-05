@@ -75,7 +75,16 @@ county.directory.tn.2015 <- school.directory.tn.2015 %>%
   dplyr::distinct()
 
 #join into ach_profile on district identifier
-ach_profile_14_15 <- full_join(ach_profile_14_15, county.directory.tn.2015, by = c("district" = "LEA_ID"))
+ach_profile_14_15 <- full_join(ach_profile_14_15, 
+                               county.directory.tn.2015, 
+                               by = c("district" = "LEA_ID"))
+ach_profile_14_15$LEA_NCES %<>% as.factor() 
+
+#join matching ach rows into unsd_df
+unsd_df <- left_join(unsd_df, ach_profile_14_15, 
+                     by = c("GEOID" = "LEA_NCES"))
+#pump back into the shape file
+unsd_2016_tn@data <- unsd_df
 
 # load IRS tax return data, zip code granularity
 load("data/irs.Rda")
@@ -104,7 +113,9 @@ leaflet(counties_tn) %>%
               highlightOptions = highlightOptions(color = "orange", weight = 3,
                                                   #sendToBack = T,
                                                   bringToFront = T),
-              popup = ~str_to_title(as.character(NAME))
+              popup = ~paste(NAME, "<br>",
+                             "Pct Econ Dsadv: ", pct_ED, "<br>",
+                             "ACT Composite: ", ACT_comp, "<br>")
   ) %>% 
   addPolygons(data = scsd_2016_tn, weight = 2, color = "navy", opacity = 1,
               fillColor = "blue", fillOpacity = 0.5,
