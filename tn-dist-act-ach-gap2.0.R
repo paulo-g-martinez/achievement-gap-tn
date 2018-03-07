@@ -86,6 +86,19 @@ unsd_df <- left_join(unsd_df, ach_profile_14_15,
 #pump back into the shape file
 unsd_2016_tn@data <- unsd_df
 
+#join matching ach rows into scsd_df
+# prep join variable
+scsd_df$LEA_ACCOUNTS <- str_replace(scsd_df$NAME, ".* in ", "") %>% 
+  str_trim() %>% 
+  str_replace(" .*", "") %>% 
+  str_replace("Franklin", "Franklin SSD") %>% 
+  str_trim()
+#join
+scsd_df <- left_join(scsd_df, ach_profile_14_15, 
+                      by = c("LEA_ACCOUNTS" = "LEA_ACCOUNTS"))
+#pump back into the shape file
+scsd_2016_tn@data <- scsd_df
+
 # load IRS tax return data, zip code granularity
 load("data/irs.Rda")
 # For now, I only need IRS 2015 tax return info, because 2013 income funded 2014-2015 education
@@ -114,8 +127,9 @@ leaflet(counties_tn) %>%
                                                   #sendToBack = T,
                                                   bringToFront = T),
               popup = ~paste(NAME, "<br>",
+                             "ACT Composite: ", ACT_comp, "<br>",
                              "Pct Econ Dsadv: ", pct_ED, "<br>",
-                             "ACT Composite: ", ACT_comp, "<br>")
+                             "Per Pupil Expenditure: $", per_pupil_expend)
   ) %>% 
   addPolygons(data = scsd_2016_tn, weight = 2, color = "navy", opacity = 1,
               fillColor = "blue", fillOpacity = 0.5,
@@ -124,7 +138,10 @@ leaflet(counties_tn) %>%
               highlightOptions = highlightOptions(color = "orange", weight = 3,
                                                   #sendToBack = T,
                                                   bringToFront = T),
-              popup = ~str_to_title(as.character(NAME))
+              popup = ~paste(NAME, "<br>",
+                             "ACT Composite: ", ACT_comp, "<br>",
+                             "Pct Econ Dsadv: ", pct_ED, "<br>",
+                             "Per Pupil Expenditure: $", per_pupil_expend)
               ) %>% 
   # Layers control
   addLayersControl(
