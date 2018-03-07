@@ -1,6 +1,5 @@
 # Load Packages ---------------------------------
 library("tidyverse")
-library("plotly")
 library("zipcode")
 library("leaflet")
 library("maps") # using it to learn leaflet
