@@ -7,7 +7,9 @@ library(scales) # from template
 library(lattice) # from template
 library(tidyverse)
 library(sp)
-library(rgeos) # for intersecting gemetries
+library(rgeos) # for intersecting geometries
+library(ggplot2)
+library(plotly)
 
 function(input, output, session) {
   ## Interactive Map ##############
@@ -56,17 +58,32 @@ function(input, output, session) {
     
   })"
   
-  output$scatterACTcomp <- renderPlot({
-    # If no polygon centroids are in view, don't plot
+  #output$scatterACTcomp <- renderPlot({
+    # If no polygon centroids are in view, don not plot
     #if (nrow(dataInBounds()) == 0)
      # return(NULL)
     
-    print(xyplot(ACT_comp ~ per_pupil_expend, 
+    #print(xyplot(ACT_comp ~ per_pupil_expend,
+                   #input$x, 
                  #data = dataInBounds(), 
-                 data = unsd_2016_tn@data,
-                 xlim = range(unsd_2016_tn@data$per_pupil_expend), 
-                 ylim = range(unsd_2016_tn@data$ACT_comp)))
-  })
+                 #data = unsd_2016_tn@data,
+                 #xlim = range(unsd_2016_tn@data$per_pupil_expend), 
+                 #ylim = range(unsd_2016_tn@data$ACT_comp)))
+  #})
+  
+  output$trendPlot <- renderPlotly({
+    
+    #build graph with ggplot syntax
+    p <- ggplot(unsd_2016_tn@data, aes_string(x = input$x, 
+                                                color = input$color,
+                                                y = 'ACT_comp')) +
+                                                #y = input$y)) +
+      geom_point()
+    
+    ggplotly(p) %>% 
+      layout(autosize = TRUE, legend = list(x = 100, y = 0.5))
+    
+    })
   
   #This observer should maintain the polygons
   observe({
