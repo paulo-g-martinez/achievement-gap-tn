@@ -1,33 +1,45 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
+# This script is based off of the 063-superzip-example on https://github.com/rstudio/shiny-examples/tree/master/063-superzip-example, consulted Wed. Mar. 6th, 2018
+library(leaflet)
 
-library(shiny)
+# Choices for drop-downs
+vars <- c(
+  "ACT Composite SCore" = "ACT_comp",
+  "Per Pupil Expenditure" = "per_pupil_expend",
+  "Percent Economically Disadvantaged" = "pcd_ED"
+)
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
-  
-  # Application title
-  titlePanel("Old Faithful Geyser Data"),
-  
-  # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
-       sliderInput("bins",
-                   "Number of bins:",
-                   min = 1,
-                   max = 50,
-                   value = 30)
-    ),
-    
-    # Show a plot of the generated distribution
-    mainPanel(
-       plotOutput("distPlot")
-    )
-  )
-))
+navbarPage("ACT Gap TN", id = "nav",
+           
+           tabPanel("Interactive Districts",
+                    div(class = "outer",
+                        
+                        tags$head(
+                          #Include a custom CSS
+                          #includeCSS("styles.css"),
+                          #includeScript("geomap.js")
+                        ),
+                        
+                        #If not using custom CSS, set height of leafletOutpu to a number instead of percent
+                        #leafletOutput("mylflt", width = "100%", height = "100%"),
+                        leafletOutput("mylflt", width = "100%", height = 600),
+                        
+                        #Shiny version prior to 0.11 should use class = "modal" instead.
+                        absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
+                                      draggable = TRUE, TOP = 60, lefft = "auto", right = 20, bottom = "auto",
+                                      width = 330, height = "auto",
+                                      
+                                      h2("School District explorer"),
+                                      
+                                      #selectInput(""),
+                                      #selectInput(),
+                                      #conditionalPanel(
+                                      #),
+                                      
+                                      plotOutput("scatterACTcomp", height = 250)
+                                    ),
+                        tags$div(id = "cite",
+                                 'Data compiled from ', tags$em('title of piece'), 'by author of piece (publisher, daate).'
+                        )
+                      )
+                    )
+           )
