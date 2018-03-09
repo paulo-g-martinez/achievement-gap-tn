@@ -28,20 +28,20 @@ navbarPage("ACT Gap TN", id = "nav",
                         
                         #Shiny version prior to 0.11 should use class = "modal" instead.
                         absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
-                                      draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
+                                      draggable = TRUE, top = 100, left = "auto", right = 20, bottom = "auto",
                                       width = 600, height = "auto",
                                       
                                       h2("School District Explorer"),
                                       
                                       plotlyOutput('trendPlot', height = 450, width = 550),
                                       
-                                      selectInput("x", "X axis", choices = nms, selected = "per_pupil_expend"),
-                                      #selectInput("y", "Y axis", choices = vars, selected = "ACT Composite Score"),
-                                      selectInput('color', "Color Coding", choices = nms, selected = "bracket")
+                                      selectInput("x", "Horizontal Axis", choices = c(None = '.', nms), selected = "per_pupil_expend"),
+                                      selectInput('color', "Color Coded By", choices = c(None = '.', nms), selected = "bracket"),
                                       #selectInput('facet_row', 'Facet Row', c(None = '.', nms), selected = "clarity"),
                                       #selectInput('facet_col', 'Facet Column', c(None = '.', nms)),
                                       #sliderInput('plotHeight', 'Height of plot (in pixels)', 
                                        #           min = 100, max = 2000, value = 1000),
+                                      selectInput("y", "Vertical Axis", choices = c(None = '.', nms), selected = "ACT_comp")
                                       
                                       #plotOutput("scatterACTcomp", height = 250)
                                       
