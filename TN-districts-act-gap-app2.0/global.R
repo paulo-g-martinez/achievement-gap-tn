@@ -18,39 +18,39 @@ counties_tn$county <- str_replace(counties_tn$names, "tennessee,", "")
 
 
 #load TN unified-school districts for 2016. (districts with both elementary and secondary schools)
-# (2016 is the first year these are available for from the U.S. Census Bureaug https://www.census.gov/geo/maps-data/data/cbf/cbf_sd.html, consulted, 02-27-2018
+# (2016 is the first year these are available for from the U.S. Census Bureau https://www.census.gov/geo/maps-data/data/cbf/cbf_sd.html, consulted, 02-27-2018
 # note only 126 out of 145 districts are available
-unsd_2016_tn <- readOGR("../data/cb_2016_47_unsd_500k/cb_2016_47_unsd_500k.shp",
+unsd_2016_tn <- readOGR("data/cb_2016_47_unsd_500k/cb_2016_47_unsd_500k.shp",
                         verbose = T,
                         GDAL1_integer64_policy = T)
 #load TN unified-school districts for 2016. (districts with both elementary and secondary schools)
 # (2016 is the first year these are available for from the U.S. Census Bureaug https://www.census.gov/geo/maps-data/data/cbf/cbf_sd.html, consulted, 02-27-2018
 # note only 16 available (combining for 142 out of 145 districts)
-scsd_2016_tn <- readOGR("../data/cb_2016_47_scsd_500k/cb_2016_47_scsd_500k.shp",
+scsd_2016_tn <- readOGR("data/cb_2016_47_scsd_500k/cb_2016_47_scsd_500k.shp",
                         verbose = T,
                         GDAL1_integer64_policy = T)
 
 
 # load district academic and socioeconomic variables 2014-2015 school year
 # This csv is aggregated from the data available for download at tn.gov/education/data
-ach_profile_14_15 <- read.csv(file = "../data/achievement_profile_data_with_CORE.csv", header = TRUE)
-names(ach_profile_14_15) <- c("dst_num", "dst_name", "alg1","alg2","bio1","chem","ELA","eng1","eng2","eng3","math","science","enrollment","pct_black","pct_hispanic","pct_ntv_am","pct_EL","pct_SWD","pct_ED","per_pupil_expend","pct_BHN","ACT_comp","pct_chron_absent","pct_susp","pct_expel","pct_grad","pct_dropout","CORE_region")
+ach_profile_14_15 <- read.csv(file = "data/achievement_profile_data_with_CORE.csv", header = TRUE)
+names(ach_profile_14_15) <- c("Distr_Num", "Distr_Name", "Alg1","Alg2","Bio1","Chem","Eng_Lang_Arts","Eng1","Eng2","Eng3","Math","Science","Enrollment","Pct_Black","Pct_Hispanic","Pct_Native_Amer","Pct_Eng_Language_Learner","Pct_Stud_w_Disability","Pct_Econ_Disadv","Dollars_Per_Pupil_Expend","Pct_Blk_Hisp_Ntv","ACT_Composite_Score","Pct_Chron_Absent","Pct_Suspended","Pct_Expelled","Pct_Graduated","Pct_Dropout","CORE_Region")
 # manually group per pupil expenditure
 ach_profile_14_15 %<>%
-  dplyr::mutate(bracket = case_when(
-    per_pupil_expend > 11000 ~ '1st third',
-    per_pupil_expend > 9000 ~ '2nd third',
-    per_pupil_expend < 9000 ~ '3rd third')
+  dplyr::mutate(Dollars_Per_Pup_Exp_Bracket = case_when(
+    Dollars_Per_Pupil_Expend > 11000 ~ 'Highest PPE',
+    Dollars_Per_Pupil_Expend > 9000 ~ 'Middle PPE',
+    Dollars_Per_Pupil_Expend < 9000 ~ 'Lowest PPE')
   )
 # Read in crosswalk to match districts to counties
 # grade ) schoool ) district ) county ) state
-crosswalk <- read.xls("../data/data_district_to_county_crosswalk.xls", header = TRUE)
+crosswalk <- read.xls("data/data_district_to_county_crosswalk.xls", header = TRUE)
 # Merge Data
-ach_profile_14_15 <- merge(ach_profile_14_15, crosswalk, by.x = "dst_num", by.y = "District.Number", type = "left", all.x = TRUE)
+ach_profile_14_15 <- merge(ach_profile_14_15, crosswalk, by.x = "Distr_Num", by.y = "District.Number", type = "left", all.x = TRUE)
 rm(crosswalk)
 
 #read in data_school_directory_2015 as crosswalk between tn identifiers and national identifiers
-school.directory.tn.2015 <- read.xls("../data/data_schl_directory_2015.xlsx", header = T, na.strings = "--")
+school.directory.tn.2015 <- read.xls("data/data_schl_directory_2015.xlsx", header = T, na.strings = "--")
 #filter and select down to the district level granularity
 district.directory.tn.2015 <- school.directory.tn.2015 %>% 
   select(LEA_ID, LEA_NCES, LEA_ACCOUNTS) %>% 
@@ -60,7 +60,7 @@ district.directory.tn.2015 <- school.directory.tn.2015 %>%
 #join into ach_profile on district identifier
 ach_profile_14_15 <- full_join(ach_profile_14_15, 
                                district.directory.tn.2015, 
-                               by = c("dst_num" = "LEA_ID"))
+                               by = c("Distr_Num" = "LEA_ID"))
 ach_profile_14_15$LEA_NCES %<>% as.factor() 
 
 #join matching ach rows into unsd_df
@@ -106,9 +106,9 @@ scsd_2016_tn@data$latitude <- coordinates(scsd_2016_tn)[,2]
                                                   #sendToBack = T,
                                                   bringToFront = T),
               popup = ~paste(NAME, "<br>",
-                             "ACT Composite: ", ACT_comp, "<br>",
+                             "ACT Composite: ", ACT_Composite_Score, "<br>",
                              "Pct Econ Dsadv: ", pct_ED, "<br>",
-                             "Per Pupil Expenditure: $", per_pupil_expend)
+                             "Per Pupil Expenditure: $", Dollars_Per_Pupil_Expend)
   ) %>% 
   addPolygons(data = scsd_2016_tn, weight = 2, color = "navy", opacity = 1,
               fillColor = "blue", fillOpacity = 0.5,
@@ -118,9 +118,9 @@ scsd_2016_tn@data$latitude <- coordinates(scsd_2016_tn)[,2]
                                                   #sendToBack = T,
                                                   bringToFront = T),
               popup = ~paste(NAME, "<br>",
-                             "ACT Composite: ", ACT_comp, "<br>",
+                             "ACT Composite: ", ACT_Composite_Score, "<br>",
                              "Pct Econ Dsadv: ", pct_ED, "<br>",
-                             "Per Pupil Expenditure: $", per_pupil_expend)
+                             "Per Pupil Expenditure: $", Dollars_Per_Pupil_Expend)
   ) %>% 
   # Layers control
   addLayersControl(
@@ -133,11 +133,11 @@ scsd_2016_tn@data$latitude <- coordinates(scsd_2016_tn)[,2]
 '# Scatter Plot for interaction---------------
 ach_profile_14_15 %<>%
   dplyr::mutate(bracket = case_when(
-    per_pupil_expend > 11000 ~ "1st third",
-    per_pupil_expend > 9000 ~ "2nd third",
-    per_pupil_expend < 9000 ~ "3rd third")
+    Dollars_Per_Pupil_Expend > 11000 ~ "1st third",
+    Dollars_Per_Pupil_Expend > 9000 ~ "2nd third",
+    Dollars_Per_Pupil_Expend < 9000 ~ "3rd third")
   )
-sctplt <- ggplot(ach_profile_14_15, aes(x = per_pupil_expend, y = ACT_comp)) +
+sctplt <- ggplot(ach_profile_14_15, aes(x = Dollars_Per_Pupil_Expend, y = ACT_Composite_Score)) +
   geom_point(aes(color = bracket)) +
   #geom_quantile() +
   #geom_smooth(method = lm) +
@@ -148,28 +148,28 @@ save(sctplt, file = "act-ach-gap/sctplt.Rda")
 
 # Correlation plots----------------
 corr_ach <- ach_profile_14_15 %>%
-  dplyr::select(-c(dst_num, dst_name, CORE_region, County.Name, County.Number, bracket))
+  dplyr::select(-c(Distr_Num, dst_name, CORE_region, County.Name, County.Number, bracket))
 #ggcorrplot::ggcorrplot(corr)
 #ggcorrplot::cor_pmat(corr)
 matrix.ach <- GGally::ggcorr(corr_ach, label = T)
 
 corr1 <- ach_profile_14_15 %>%
   dplyr::filter(bracket == "1st third") %>%
-  dplyr::select(-c(dst_num, dst_name, CORE_region, County.Name, County.Number, bracket))
+  dplyr::select(-c(Distr_Num, dst_name, CORE_region, County.Name, County.Number, bracket))
 #ggcorrplot::ggcorrplot(corr)
 #ggcorrplot::cor_pmat(corr)
 GGally::ggcorr(corr1, label = T)
 
 corr2 <- ach_profile_14_15 %>%
   dplyr::filter(bracket == "2nd third") %>%
-  dplyr::select(-c(dst_num, dst_name, CORE_region, County.Name, County.Number, bracket))
+  dplyr::select(-c(Distr_Num, dst_name, CORE_region, County.Name, County.Number, bracket))
 #ggcorrplot::ggcorrplot(corr)
 #ggcorrplot::cor_pmat(corr)
 GGally::ggcorr(corr2, label = T)
 
 corr3 <- ach_profile_14_15 %>%
   dplyr::filter(bracket == "3rd third") %>%
-  dplyr::select(-c(dst_num, dst_name, CORE_region, County.Name, County.Number, bracket))
+  dplyr::select(-c(Distr_Num, dst_name, CORE_region, County.Name, County.Number, bracket))
 #ggcorrplot::ggcorrplot(corr)
 #ggcorrplot::cor_pmat(corr)
 GGally::ggcorr(corr3, label = T)'
