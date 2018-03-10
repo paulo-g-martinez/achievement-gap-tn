@@ -65,6 +65,25 @@ function(input, output, session) {
     
   })
   
+  output$matrix <- renderPlot({
+    if (nrow(dataInBounds()) == 0)
+      return(NULL)
+    print(p <- GGally::ggcorr(dataInBounds() %>% 
+                           dplyr::select(-c(Distr_Num, Distr_Name, CORE_Region, County.Name, County.Number, Dollars_Per_Pup_Exp_Bracket, LEA_ACCOUNTS, LEA_NCES, STATEFP, SCSDLEA, AFFGEOID, GEOID, LSAD, ALAND, AWATER, longitude, latitude)), 
+                         label = T, layout.exp = 1.5, check_overlap = T, hjust = 1))
+  })
+  
+  'output$matrixly <- renderPlotly({
+    if (nrow(dataInBounds()) == 0)
+      return(NULL)
+    cormat <- round(cor(dataInBounds() %>% 
+                          dplyr::select(-c(Distr_Num, Distr_Name, CORE_Region, County.Name, County.Number, Dollars_Per_Pup_Exp_Bracket, LEA_ACCOUNTS, LEA_NCES, STATEFP, SCSDLEA, AFFGEOID, GEOID, LSAD, ALAND, AWATER, longitude, latitude))),
+                    2)
+    
+    plot_ly(x = rownames(cormat), y = colnames(cormat), z = cormat, 
+            type = "heatmap")
+  })'
+  
   #output$scatterACTcomp <- renderPlot({
     # If no polygon centroids are in view, don not plot
     #if (nrow(dataInBounds()) == 0)

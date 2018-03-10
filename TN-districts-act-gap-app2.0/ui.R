@@ -81,6 +81,16 @@ navbarPage("The Achievement Gap in TN", id = "nav",
                                       #plotOutput("scatterACTcomp", height = 250)
                                       
                                     ),
+                        absolutePanel(id = "controls", class = "panel panel-default", fixed = T,
+                                      draggable = TRUE, top = "auto", left = "auto", right = 5, bottom = -700,
+                                      width = 660, height = "auto",
+                                      
+                                      h4("Level up the stats!"),
+                                      p("This is a correlation matrix, It shows the correlative strength between all variables all at once."),
+                                      p("(If it's too overwhelming you can just slide it out of the way, it won't hurt anything.)"),
+                                      plotOutput("matrix", height = 600)
+                                      
+                        ),
                     
                         tags$div(id = "cite",
                                  'Data compiled from ', tags$em('tn.gov/education/data'), 'and from the U.S. Census Bureau (https://www.census.gov/geo/maps-data/data/cbf/cbf_sd.html, consulted, 02-27-2018).'

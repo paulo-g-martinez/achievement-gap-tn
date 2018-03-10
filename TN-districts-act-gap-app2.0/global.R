@@ -144,14 +144,14 @@ sctplt <- ggplot(ach_profile_14_15, aes(x = Dollars_Per_Pupil_Expend, y = ACT_Co
   geom_smooth(data = (ach_profile_14_15 %>% filter(bracket == "1st third")), method = lm) +
   geom_smooth(data = (ach_profile_14_15 %>% filter(bracket == "2nd third")), method = lm) +
   geom_smooth(data = (ach_profile_14_15 %>% filter(bracket == "3rd third")), method = lm)
-save(sctplt, file = "act-ach-gap/sctplt.Rda")
+save(sctplt, file = "act-ach-gap/sctplt.Rda")'
 
 # Correlation plots----------------
-corr_ach <- ach_profile_14_15 %>%
-  dplyr::select(-c(Distr_Num, dst_name, CORE_region, County.Name, County.Number, bracket))
+'corr_ach <- ach_profile_14_15 %>%
+  dplyr::select(-c(Distr_Num, Distr_Name, CORE_Region, County.Name, County.Number, Dollars_Per_Pup_Exp_Bracket, LEA_ACCOUNTS, LEA_NCES))
 #ggcorrplot::ggcorrplot(corr)
 #ggcorrplot::cor_pmat(corr)
-matrix.ach <- GGally::ggcorr(corr_ach, label = T)
+matrix.ach <- GGally::ggcorr(corr_ach, label = T, layout.exp = 2, check_overlap = T, hjust = 1)
 
 corr1 <- ach_profile_14_15 %>%
   dplyr::filter(bracket == "1st third") %>%
