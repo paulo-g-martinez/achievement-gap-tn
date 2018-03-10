@@ -1,6 +1,7 @@
 # This script is based off of the 063-superzip-example on https://github.com/rstudio/shiny-examples/tree/master/063-superzip-example, consulted Wed. Mar. 6th, 2018
 library(leaflet)
 library(plotly)
+library(DT)
 
 # Choices for drop-downs
 vars <- c(
@@ -85,5 +86,35 @@ navbarPage("The Achievement Gap in TN", id = "nav",
                                  'Data compiled from ', tags$em('tn.gov/education/data'), 'and from the U.S. Census Bureau (https://www.census.gov/geo/maps-data/data/cbf/cbf_sd.html, consulted, 02-27-2018).'
                         )
                       )
-                    )
+                    ),
+           tabPanel("Data explorer",
+                    fluidRow(
+                      column(3,
+                             selectInput("counties", "Counties", c("All counties"="", as.character(dplyr::full_join(unsd_2016_tn@data, scsd_2016_tn@data)$County.Name), "Anderson County"="Anderson County"), multiple=TRUE)
+                      ),
+                      column(3,
+                             conditionalPanel("input.counties",
+                                              selectInput("districts", "Districts", as.character(dplyr::full_join(unsd_2016_tn@data, scsd_2016_tn@data)$NAME), multiple=TRUE)
+                             )
+                      )#,
+                      #column(3,
+                       #      conditionalPanel("input.states",
+                        #                      selectInput("zipcodes", "Zipcodes", c("All zipcodes"=""), multiple=TRUE)
+                         #    )
+                      #)
+                    #),
+                    #fluidRow(
+                    #  column(1,
+                     #        numericInput("minScore", "Min score", min=0, max=100, value=0)
+                      #),
+                      #column(1,
+                       #      numericInput("maxScore", "Max score", min=0, max=100, value=100)
+                      #)
+                    ),
+                    hr(),
+                    DT::dataTableOutput('table')
+           )#,
+           
+           #conditionalPanel("false", icon("crosshair"))           
+           
 )

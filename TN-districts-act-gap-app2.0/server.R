@@ -151,4 +151,15 @@ function(input, output, session) {
                   popup = ~str_to_title(as.character(county))
       )
   })
+  
+  output$table <- DT::renderDataTable({
+    df <- dplyr::full_join(unsd_2016_tn@data, scsd_2016_tn@data) %>% 
+      dplyr::filter(
+        is.null(input$counties) | County.Name %in% input$counties,
+        is.null(input$districts)| NAME %in% input$districts
+      )
+    #action <- DT::dataTableAjax(session, df)
+    
+    #DT::datatable(df, options = list(ajax = list(url = action)), escape = F)
+  })
 }
