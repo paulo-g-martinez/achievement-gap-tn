@@ -138,6 +138,8 @@ function(input, output, session) {
         #data = dataInBounds(),
         weight = 2, color = "navy", opacity = 1,
                   fillColor = "blue", fillOpacity = 0.5,
+                  #fillColor = ~ACT_Composite_Score,
+                  #fillColor = ~Pct_Econ_Disadv,
                   group = "Unified School-Districts", 
                   label = ~str_to_title(as.character(NAME)),
                   highlightOptions = highlightOptions(color = "orange", weight = 3,
