@@ -31,7 +31,7 @@ function(input, output, session) {
       ) %>% 
       hideGroup(c("Unified School-Districts", "Secondary School-Districts (Exclusively High Sch.)")) %>% 
       
-      setView(lng = -89.50, lat = 35.45, zoom = 7)
+      setView(lng = -89.24, lat = 35.45, zoom = 7)
   })
   # A reactive expression that should return the set of data in the map bounds
 

@@ -65,7 +65,8 @@ ach_profile_14_15$LEA_NCES %<>% as.factor()
 
 #join matching ach rows into unsd_df
 unsd_2016_tn@data <- left_join(unsd_2016_tn@data, ach_profile_14_15, 
-                     by = c("GEOID" = "LEA_NCES"))
+                     by = c("GEOID" = "LEA_NCES")) %>% 
+                      add_column(State = "TN")
 # copying polygon centroid coordinates into data for interactive filtering
 unsd_2016_tn@data$longitude <- coordinates(unsd_2016_tn)[,1]
 unsd_2016_tn@data$latitude <- coordinates(unsd_2016_tn)[,2]
@@ -78,10 +79,14 @@ scsd_2016_tn@data$LEA_ACCOUNTS <- str_replace(scsd_2016_tn@data$NAME, ".* in ", 
   str_trim()
 #join matching ach rows into scsd_df
 scsd_2016_tn@data <- left_join(scsd_2016_tn@data, ach_profile_14_15, 
-                     by = c("LEA_ACCOUNTS" = "LEA_ACCOUNTS"))
+                     by = c("LEA_ACCOUNTS" = "LEA_ACCOUNTS")) %>% 
+  add_column(State = "TN")
 # copying polygon centroid coordinates into attribute table for interactive filtering
 scsd_2016_tn@data$longitude <- coordinates(scsd_2016_tn)[,1]
 scsd_2016_tn@data$latitude <- coordinates(scsd_2016_tn)[,2]
+
+# Read in school-level attendance boundary shapes
+
 
 # Map data for introductory analysis -------------------
 'mylflt <- leaflet(counties_tn) %>% 
@@ -130,8 +135,8 @@ scsd_2016_tn@data$latitude <- coordinates(scsd_2016_tn)[,2]
   ) %>% 
   hideGroup(c("Unified School-Districts", "Secondary School-Districts"))'
 
-'# Scatter Plot for interaction---------------
-ach_profile_14_15 %<>%
+# Scatter Plot for interaction---------------
+'ach_profile_14_15 %<>%
   dplyr::mutate(bracket = case_when(
     Dollars_Per_Pupil_Expend > 11000 ~ "1st third",
     Dollars_Per_Pupil_Expend > 9000 ~ "2nd third",
@@ -151,25 +156,5 @@ save(sctplt, file = "act-ach-gap/sctplt.Rda")'
   dplyr::select(-c(Distr_Num, Distr_Name, CORE_Region, County.Name, County.Number, Dollars_Per_Pup_Exp_Bracket, LEA_ACCOUNTS, LEA_NCES))
 #ggcorrplot::ggcorrplot(corr)
 #ggcorrplot::cor_pmat(corr)
-matrix.ach <- GGally::ggcorr(corr_ach, label = T, layout.exp = 2, check_overlap = T, hjust = 1)
+matrix.ach <- GGally::ggcorr(corr_ach, label = T, layout.exp = 2, check_overlap = T, hjust = 1)'
 
-corr1 <- ach_profile_14_15 %>%
-  dplyr::filter(bracket == "1st third") %>%
-  dplyr::select(-c(Distr_Num, dst_name, CORE_region, County.Name, County.Number, bracket))
-#ggcorrplot::ggcorrplot(corr)
-#ggcorrplot::cor_pmat(corr)
-GGally::ggcorr(corr1, label = T)
-
-corr2 <- ach_profile_14_15 %>%
-  dplyr::filter(bracket == "2nd third") %>%
-  dplyr::select(-c(Distr_Num, dst_name, CORE_region, County.Name, County.Number, bracket))
-#ggcorrplot::ggcorrplot(corr)
-#ggcorrplot::cor_pmat(corr)
-GGally::ggcorr(corr2, label = T)
-
-corr3 <- ach_profile_14_15 %>%
-  dplyr::filter(bracket == "3rd third") %>%
-  dplyr::select(-c(Distr_Num, dst_name, CORE_region, County.Name, County.Number, bracket))
-#ggcorrplot::ggcorrplot(corr)
-#ggcorrplot::cor_pmat(corr)
-GGally::ggcorr(corr3, label = T)'
