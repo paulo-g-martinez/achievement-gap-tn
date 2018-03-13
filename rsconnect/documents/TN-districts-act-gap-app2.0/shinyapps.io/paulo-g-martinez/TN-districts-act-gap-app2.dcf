@@ -5,9 +5,9 @@ account: paulo-g-martinez
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 296829
-bundleId: 1262177
+bundleId: 1266712
 url: https://paulo-g-martinez.shinyapps.io/TN-districts-act-gap-app2/
-when: 1520674110.06816
+when: 1520964287.76857
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: lflt-and-abspanel-ui-1.R
