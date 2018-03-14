@@ -86,7 +86,7 @@ scsd_2016_tn@data$longitude <- coordinates(scsd_2016_tn)[,1]
 scsd_2016_tn@data$latitude <- coordinates(scsd_2016_tn)[,2]
 
 # Read in school-level attendance boundary shapes
-
+load("data/SABS_TN.Rda")
 
 # Map data for introductory analysis -------------------
 'mylflt <- leaflet(counties_tn) %>% 
