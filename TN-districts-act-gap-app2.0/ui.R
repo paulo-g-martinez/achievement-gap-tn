@@ -76,7 +76,9 @@ navbarPage("The Achievement Gap in TN", id = "nav",
                                       #sliderInput('plotHeight', 'Height of plot (in pixels)', 
                                        #           min = 100, max = 2000, value = 1000),
                                       selectInput('color', "Color Coded By", choices = c(nms,""), selected = "State"),
-                                      p("Here you can color-group the points by your input. For super granular filtering control, you can color-group them by district name and click-off particular points on the legend. (Although, with 146 districts, you might have to do some scrolling through the legend.)")
+                                      p("Here you can color-group the points by your input."), 
+                                      p("Hint: Color-code the districkts by Expenditure-Bracket, to see how the districts that spend the least on their students compare to districts that spend the most on their students."),
+                                      h6("For super granular filtering control, you can color-group them by district number and click-off particular points on the legend. (Although, with 146 districts, you might have to do some scrolling through the legend.)")
                                       
                                       #plotOutput("scatterACTcomp", height = 250)
                                       
