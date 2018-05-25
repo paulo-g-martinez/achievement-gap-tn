@@ -88,35 +88,49 @@ scsd_2016_tn@data$latitude <- coordinates(scsd_2016_tn)[,2]
 # Compiling data at the school level granularity ------------------
 
 # Read in school directory 2013-2014 as a crosswalk between SABS and TN identifiers
-sc.dir.14 <- read.xls("data/data_schl_directory_2014.xlsx") %>% 
-  dplyr::select(-c(ST.Agency, Mailing.Add.3, Zip...4, Location.Add.3, City.1, State.1, Zip.1))
-# 0 pad SCH.NCES for paste with LEA.NCES
-sc.dir.14$SCH.NCES %<>% 
-  as.character() %>% 
-  str_pad(5, pad = "0")
-# prep for paste
-sc.dir.14$LEA.NCES %<>%
-  as.character()
-# paste and trim
-sc.dir.14$ncessch <- paste(sc.dir.14$LEA.NCES, sc.dir.14$SCH.NCES) %>% 
-  str_replace_all(" ", "")
+    sc.dir.13_14 <- read.xls("data/data_schl_directory_2014.xlsx") %>% 
+      dplyr::select(-c(ST.Agency, Mailing.Add.3, Zip...4, Location.Add.3, City.1, State.1, Zip.1))
+    # 0 pad SCH.NCES for paste with LEA.NCES
+    sc.dir.13_14$SCH.NCES %<>% 
+      as.character() %>% 
+      str_pad(5, pad = "0")
+    # prep for paste
+    sc.dir.13_14$LEA.NCES %<>%
+      as.character()
+    # paste and trim
+    sc.dir.13_14$ncessch <- paste(sc.dir.13_14$LEA.NCES, sc.dir.13_14$SCH.NCES) %>% 
+      str_replace_all(" ", "")
 
 # Read in school-level attendance boundary shapes for 2013 - 2014 school year
-load("data/SABS_TN_13_14.Rda") 
-# prep column for join
-SABS_TN@data$ncessch %<>% 
-  as.character() %>% 
-  str_replace_all(" ", "")
-# Left join into SABS 13-14 shapefile
-SABS_TN@data <- left_join(SABS_TN@data, sc.dir.14) %>% 
-  rename(Tn.Id = X.Record.Id)
+    load("data/SABS_TN_13_14.Rda") 
+    # transform projection for compatibiliyt
+    SABS_TN.13_14 <- spTransform(SABS_TN.13_14, CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+    
+    # prep column for join
+    SABS_TN.13_14@data$ncessch %<>% 
+      as.character() %>% 
+      str_replace_all(" ", "")
+    # Left join into SABS 13_14 shapefile
+    SABS_TN.13_14@data <- left_join(SABS_TN.13_14@data, sc.dir.13_14) %>% 
+      rename(Tn.Id = X.Record.Id)
   
-# Read in 2014 school achievement for ACT scores
-sc.ach.14 <- read.xls("data/data_2014_school_achievement.xlsx") %>% 
-  dplyr::select(-c(SCHOOL.YEAR, Math.Grade, Math.Trend, Reading.Grade, Reading.Trend, Social.Studies.Grade, Social.Studies.Trend, Science.Grade, Science.Trend, ACT.3yr.english, ACT.3yr.math, ACT.3yr.Reading, ACT.3yr.science, ACT.1yr.composite, ACT.1yr.english, ACT.1yr.math, ACT.1yr.Reading, ACT.1yr.science))
+# Read in 2013-2014 school achievement for ACT scores
+    sc.ach.13_14 <- read.xls("data/data_2014_school_achievement.xlsx") %>% 
+      dplyr::select(-c(SCHOOL.YEAR, Math.Grade, Math.Trend, Reading.Grade, Reading.Trend, 
+                       Social.Studies.Grade, Social.Studies.Trend, Science.Grade, Science.Trend, 
+                       ACT.3yr.english, ACT.3yr.math, ACT.3yr.Reading, ACT.3yr.science, 
+                       ACT.1yr.composite, ACT.1yr.english, ACT.1yr.math, ACT.1yr.Reading, 
+                       ACT.1yr.science))
 
-# Left join it into SABS13-14
-SABS_TN@data <- left_join(SABS_TN@data, sc.ach.14, by = c("School.Name" = "school.name"))
+    # Left join it into SABS13_14
+    SABS_TN.13_14@data <- left_join(SABS_TN.13_14@data, sc.ach.13_14, 
+                              by = c("School.Name" = "school.name",
+                                     "LEA.Id" = "DISTRICT.ID")) %>% 
+                                select(-c(Math.3yr.Average.NCE, Social.Studies.3yr.Average.NCE, Science.3yravg.cur)) %>% 
+                                rename(DISTRICT.ID = LEA.Id)
+
+# Read in school level demographic profile data
+    sc.prfl.13_14 <- read.xls("data/data_2014_school_profile.xlsx")
 
 # Map data for introductory analysis -------------------
 'mylflt <- leaflet(counties_tn) %>% 

@@ -72,13 +72,13 @@ leaflet(mapCounties) %>%
               label = ~as.character(county),
               highlightOptions = highlightOptions(color = "white", weight = 3,
                                                   bringToFront = T)) %>%
-  addPolygons(data = shape_districts2016,
-              weight = 2, color = "white", opacity = 1,
-              fillColor = "navy", fillOpacity = 0.5,
-              group = "District Outline",
-              label = ~as.character(NAME),
-              highlightOptions = highlightOptions(color = "red", weight = 2,
-                                                  bringToFront = T)) %>%
+  #addPolygons(data = shape_districts2016,
+   #           weight = 2, color = "white", opacity = 1,
+    #          fillColor = "navy", fillOpacity = 0.5,
+     #         group = "District Outline",
+      #        label = ~as.character(NAME),
+       #       highlightOptions = highlightOptions(color = "red", weight = 2,
+        #                                          bringToFront = T)) %>%
   addPolygons(data = SABS_TN,
               weight = 1, color = "black", opacity = 1, 
               fillColor = "white", fillOpacity = 0.2,
